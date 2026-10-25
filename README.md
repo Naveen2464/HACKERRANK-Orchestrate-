@@ -1,161 +1,217 @@
+HackerRank Orchestrate — October 2026
 
-# HackerRank Orchestrate - October 2026
+Ghost Data Still Exists
 
-## Ghost Data Still Exists
+Build an AI agent that audits whether a user's personal data was actually deleted. A deletion workflow may report Complete while data still exists in databases, logs, support attachments, exports, search indexes, archives, or backups. Sync and restore processes may also bring deleted data back.
 
-Build an AI agent that audits whether a user's personal data was actually deleted.
+For each request, the agent must determine whether deletion was requested, return COMPLETE, INCOMPLETE, or NOT_APPLICABLE, identify remaining data or recreation risks, and produce ordered remediation and verification steps.
 
-A deletion workflow may report **Complete** while data still exists in databases, logs, support attachments, exports, search indexes, archives, or backups. Sync and restore processes may also bring deleted data back.
+Read problem_statement.md for the complete challenge contract.
 
-For each request, the agent must first determine whether deletion was actually requested. It then returns `COMPLETE`, `INCOMPLETE`, or `NOT_APPLICABLE`, reports any remaining data or recreation risk, and produces the ordered remediation and verification steps required to finish an authorized deletion safely.
+Quick Start
 
-Read [`problem_statement.md`](./problem_statement.md) for the complete challenge contract.
+Run commands from the repository root.
 
----
-
-## Quick Start
-
-Clone the repository and move into the project directory:
-
-```bash
-git clone https://github.com/interviewstreet/hackerrank-orchestrate-october26.git
-cd hackerrank-orchestrate-october26
-```
-
-Start your AI coding tool from the **repository root** so it automatically reads [`AGENTS.md`](./AGENTS.md) and logs your session turns to `log.txt` in the root directory.
-
-Build your solution in `code/main.py`, or use another language and document its setup and run command clearly in your README.
-
-Your solution must:
-
-- Read the input files from `dataset/`
-- Generate one prediction row for every request in `dataset/deletion_requests.csv`
-- Write the final predictions to `output.csv` in the repository root
-
-Run the starter Python entry point with:
-
-```bash
 python3 code/main.py
-```
 
-The blank template at `dataset/output.csv` is provided as a reference. Your final generated file for submission must be the root-level `output.csv`.
+On Windows PowerShell:
 
+python code/main.py
 
-## Dataset
+The program should read inputs from dataset/ and write the final predictions to the root-level output.csv.
 
-All participant-facing files are in `dataset/`:
+If your implementation supports sample mode, run:
 
-| File | Contents |
-| --- | --- |
-| `deletion_requests.csv` | 518 requests |
-| `sample_deletion_requests.csv` | 32 sample requests |
-| `sample_output.csv` | Correct sample answers |
-| `user_identities.csv` | Current user identities |
-| `user_audit_log.csv` | Historical identity changes |
-| `system_activity.csv` | Activity across services and data processes |
-| `deletion_rules.csv` | Required treatment for each data category |
-| `evidence_files.csv` | Manifest of supplied evidence files |
-| `output.csv` | Blank output template |
+python3 code/main.py --sample
 
-Evidence is stored under `dataset/evidence/` and may include PDFs, images, logs, JSON, plain text, or SQL snapshot exports. SQL captures may contain a primary database, regional replicas, a reporting replica, or a failover replica so replication drift can be investigated directly. The `.sql` files are readable as text and executable with SQLite.
+Sample mode is for development checks only; it does not replace the required full-dataset run.
 
-Only `deletion_requests.csv` requires answers. The other files provide evidence and context.
+Dataset
 
----
+The challenge inputs are in dataset/.
 
-## Output
+File
 
-Create `output.csv` with these columns in this exact order:
+Contents
 
-```text
+deletion_requests.csv
+
+518 requests requiring predictions
+
+sample_deletion_requests.csv
+
+32 sample requests
+
+sample_output.csv
+
+Correct sample answers
+
+user_identities.csv
+
+Current user identities
+
+user_audit_log.csv
+
+Historical identity changes
+
+system_activity.csv
+
+Activity across services and data processes
+
+deletion_rules.csv
+
+Required treatment for each data category
+
+evidence_files.csv
+
+Manifest of supplied evidence files
+
+evidence/
+
+PDFs, images, logs, JSON, text, and SQL snapshot exports
+
+output.csv
+
+Blank output template
+
+Only deletion_requests.csv requires predictions. The other files provide evidence and context. SQL captures may include primary databases, regional replicas, reporting replicas, and failover replicas.
+
+Output Format
+
+Create output.csv in the repository root with these columns in this exact order:
+
 case_id,deletion_status,steps_json
-```
 
-Produce exactly one row per request. `deletion_status` is `COMPLETE`, `INCOMPLETE`, or `NOT_APPLICABLE`. `steps_json` is an ordered JSON array containing findings, remediation actions, and verification checks. Use an empty array (`[]`) for `NOT_APPLICABLE`. Evidence references may be a `file_id`, `activity_id`, or `audit_id`. Determine the resource state at `audit_at` from the available evidence; reported workflow statuses and operation results are claims. Use `dataset/sample_output.csv` as the format reference.
+Requirements:
 
-The final file must contain 518 data rows sorted by `case_id` (plus the header row). The grader parses `steps_json` as JSON, so object-key order and whitespace do not matter; array order does. Order findings, remediation, and verification in that phase order. Within a phase, follow the operation order in the problem statement, then sort by `system_id` and `resource_id`.
+Produce exactly 518 data rows, one per request.
 
----
+Sort rows by case_id.
 
-## Evaluation
+Use only COMPLETE, INCOMPLETE, or NOT_APPLICABLE.
 
-`output.csv` will be compared with hidden canonical answers. Scoring considers:
+steps_json must be a valid JSON array.
 
-- deletion assessment accuracy;
-- current and historical identity resolution;
-- discovery of remaining data and recreation risks;
-- correct policy application and evidence references; and
-- completeness and ordering of remediation and verification steps.
+Use [] for NOT_APPLICABLE.
 
-Your `code.zip` must include:
+Number steps consecutively from 1 within each case.
 
-```text
+Follow the required phase order: FINDING, REMEDIATION, VERIFICATION.
+
+Within each phase, follow the operation order in problem_statement.md, then sort by system_id and resource_id.
+
+Findings and completed verification steps must cite appropriate evidence identifiers.
+
+Proposed remediation and future verification steps for incomplete cases must use an empty evidence_id ("").
+
+Each step must follow the schema in problem_statement.md, including step_no, phase, system_id, resource_id, operation, state, and evidence_id.
+
+A reported workflow status or operation result is a claim, not proof of the current resource state. Assess evidence relevant to the request at its audit_at timestamp.
+
+Intended Audit Workflow
+
+Determine whether deletion was actually requested and whether it is authorized.
+
+Resolve user identities using current identity data and historical audit logs.
+
+Discover associated resources across available systems and evidence.
+
+Identify remaining records, exposed personal information, active data flows, and restore or recreation risks.
+
+Apply the applicable deletion and retention policy.
+
+Produce evidence-backed findings.
+
+List remediation actions required to complete an authorized deletion safely.
+
+Include verification steps only when supported by evidence of the current state.
+
+Validate output rows, JSON structure, evidence references, step numbering, and ordering.
+
+Evaluation Reports
+
+Include both required reports inside code/evaluation/:
+
+code/evaluation/evaluation_report.md — case, row, field, and sequence accuracy; at least three additional evaluation cases; failures found; and improvements made.
+
+code/evaluation/usage_report.md — details of the final full-dataset run, model providers and names, model calls, input and output tokens, total and average tokens per request, and estimated total and per-request cost. Include per-model and overall totals if multiple models are used.
+
+Report only metrics that were actually measured and model usage that actually occurred. If the final run uses no external model calls, state that clearly and distinguish it from any AI assistance used during development. Rerun evaluation and verify all reported metrics before submission.
+
+Implementation Limitations to Review
+
+The implementation should be reviewed for these known risks before submission:
+
+Some screenshot evidence may be represented by predefined facts rather than a general screenshot-understanding pipeline.
+
+Some PDF evidence handling may use filename-based matching or evidence-ID fallbacks rather than validating the document's actual content.
+
+Dynamic loading and application of deletion_rules.csv must be verified; policy decisions should adapt when the rules change.
+
+Broad exception handling should not silently conceal evidence-parsing failures.
+
+Recommended improvements include content-based evidence extraction, dynamic policy loading, explicit parsing errors, and tests for changed policies, missing evidence, historical identities, retained records, replication drift, and restore risks. Do not claim an improvement is implemented unless it has been implemented and tested.
+
+Dependencies
+
+Use a Python version supported by your environment. Install the packages actually imported by code/main.py. For example, if required:
+
+python -m pip install pandas pypdf python-dotenv
+
+Check the source code and runtime requirements before installing optional dependencies. No external model API key should be required for a local deterministic execution path; verify this by running the program without API credentials.
+
+Package the Submission
+
+Create code.zip from the repository root. Include the runnable code, this README, and evaluation reports. Do not include dataset/, virtual environments, build caches, or nested archives.
+
+macOS / Linux
+
+zip -r code.zip README.md code \
+  -x "*/__pycache__/*" "*/.venv/*" "*/venv/*" \
+     "*/node_modules/*" "*/.git/*" "*/.DS_Store" \
+     "*.zip" "*.tar" "*.gz" "*.tgz" "*.7z" "*.rar"
+
+Windows PowerShell
+
+Compress-Archive -Path README.md, code -DestinationPath code.zip -Force
+
+Before submitting, verify that code.zip contains:
+
+README.md
+code/main.py
 code/evaluation/evaluation_report.md
 code/evaluation/usage_report.md
-```
 
-- `evaluation_report.md` must cover case, row, field, and sequence accuracy, at least three additional evaluation cases created by you, failures found, and improvements made.
-- `usage_report.md` must cover the final full-dataset run, including model providers and names, model calls, input and output tokens, total and average tokens per request, and estimated total and per-request cost. Include per-model and overall totals when using multiple models.
+Submit these three items through the challenge interface:
 
-**Important:** Place `evaluation_report.md` and `usage_report.md` inside `code/evaluation/` (matching `code/evaluation/main.py` in this starter layout), write your complete evaluation metrics, custom evaluation test cases, and token/cost breakdowns directly inside those Markdown files, and keep prompts in source code or Markdown files. Automated code evaluation ignores raw data files (`.csv`, `.tsv`, `.json`, `.jsonl`, `.sql`, `.log`), so content stored only in those formats will not be visible to the code judge or AI interviewer.
+code.zip
 
----
+Root-level output.csv
 
-## Chat Transcript
+Root-level log.txt as the chat transcript
 
-This repository includes [`AGENTS.md`](./AGENTS.md), which instructs compatible AI coding tools to append conversation summaries to `log.txt` in the repository root:
+Do not include API keys, credentials, or secrets in source files, reports, prompts, or the transcript.
 
-| Platform | Path |
-| --- | --- |
-| macOS / Linux | `<repo root>/log.txt` |
-| Windows | `<repo root>\log.txt` |
+Final Checklist
 
-- Always launch your AI coding agent from the repository root (or explicitly ask it to read `./AGENTS.md` first) so every turn is logged to `log.txt` with the required `User Prompt`, `Agent Response Summary`, `Actions`, and `Context` sections.
-- Upload `log.txt` directly as your `chat_transcript` submission on HackerRank.
-- Do not include API keys, tokens, credentials, or secrets in prompts, code, configuration, or `log.txt`.
+Full-dataset run completed from the repository root.
 
----
+output.csv has the exact header and 518 sorted data rows.
 
-## Packaging `code.zip` and Submission
+Every steps_json value parses as a JSON array.
 
-| Item | Description |
-| --- | --- |
-| `code.zip` | Runnable solution, prompts, configuration, `README.md`, and `evaluation/` reports |
-| `output.csv` | One answer row for each of the 518 requests in `dataset/deletion_requests.csv` |
-| `chat_transcript` | The root `log.txt` file generated by your coding agent |
-| AI interview | Live explanation of your architecture, approach, and evaluation |
+Step numbers are consecutive within each case.
 
-You may use any programming language, model, framework, or retrieval approach. Include clear setup and execution instructions in `README.md` inside `code.zip`.
+Phase and operation ordering match problem_statement.md.
 
-To package `code.zip` from the repository root without bundling the dataset:
+Evidence references support findings and completed verifications.
 
-**macOS / Linux:**
+Proposed remediation and future verification steps use evidence_id: "".
 
-```bash
-zip -r code.zip README.md code -x "*/__pycache__/*" "*/.venv/*" "*/venv/*" "*/node_modules/*" "*/.git/*" "*/.DS_Store"
-```
+Evaluation metrics and usage figures have been verified.
 
-**Windows (PowerShell):**
+Both reports are inside code/evaluation/.
 
-```powershell
-Compress-Archive -Path README.md, code -DestinationPath code.zip -Force
-```
+code.zip excludes the dataset, environments, caches, and nested archives.
 
-When packaging `code.zip`:
-
-- Keep your evaluation reports in `code/evaluation/` so they are bundled automatically with `code` (or add `evaluation` to the archive command above if you placed them in a top-level `evaluation/` directory).
-- Do **not** include `dataset/`, virtual environments (`.venv`, `venv`, `node_modules`), or build caches (`__pycache__`). On Windows, keep `.venv` at the repository root (outside `code/`) and remove any `code/__pycache__` folders before running `Compress-Archive`.
-- Do **not** include nested archives (`.zip`, `.tar`, `.gz`, `.tgz`, `.7z`, `.rar`) inside `code.zip` — submissions containing nested archive files will be rejected.
-
-Before submitting, confirm that:
-
-- `output.csv` has the exact header `case_id,deletion_status,steps_json` and contains all 518 data rows sorted by `case_id`;
-- every `steps_json` value is a valid JSON array with consecutive step numbers starting at `1`;
-- findings cite valid evidence IDs, and `COMPLETE` verification steps cite evidence proving the current state;
-- proposed remediation and future verification steps use an empty `evidence_id` (`""`);
-- `code.zip` includes your runnable code, `README.md`, `code/evaluation/evaluation_report.md`, and `code/evaluation/usage_report.md`;
-- `log.txt` follows the `AGENTS.md` turn format and is uploaded to the `chat_transcript` slot; and
-- no API keys, credentials, real personal data, or sensitive configuration values are included.
-#   H A C K E R R A N K - O r c h e s t r a t e - 
- 
- 
+log.txt follows the required AGENTS.md transcript format.
